@@ -32,6 +32,7 @@ The test fails if the live run exceeds the allowed drift:
 from __future__ import annotations
 
 import json
+import math
 import time
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -201,10 +202,20 @@ def _run_scenario() -> dict:
     sim_time = 0.0
     dt = 1.0 / cc["tick_rate_hz"]
 
+    # Peak detection runs at dynamics rate (every solver.step call), not at
+    # controller rate — otherwise bounces between controller ticks are invisible
+    # to the velocity-sign-flip detector in _StubController.
+    _prev_pos = dynamics._position
+    _last_reported_peak = float("nan")
+
     for tick in range(sc["num_ticks"]):
         ball_position, ball_velocity, paddle = solver.step()
         sim_time += dt
-        peak = ctrl.last_peak()
+
+        # Position-based peak: ball was rising, now falling, and above the paddle
+        if ball_position < _prev_pos and _prev_pos > paddle:
+            _last_reported_peak = _prev_pos
+        _prev_pos = ball_position
 
         out.record(
             tick=tick,
@@ -212,7 +223,7 @@ def _run_scenario() -> dict:
             ball_position=ball_position,
             ball_velocity=ball_velocity,
             paddle=paddle,
-            last_peak=peak,
+            last_peak=_last_reported_peak,
             event="none",
             step_dt=dt,
         )
