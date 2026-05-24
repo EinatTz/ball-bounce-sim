@@ -39,7 +39,7 @@ class FixedStepSolver:
         """
 
         # ── Controller tick due? ──────────────────────────────────────────────
-        if self._t == self._next_ctrl_t:
+        if self._t - self._next_ctrl_t < 1e-9:
             ball_position, ball_velocity = self._dynamics.step(self._paddle, self._dynamics_dt)
             self._paddle = self._ctrl.step(ball_position, ball_velocity)
             self._t += self._dynamics_dt
@@ -141,7 +141,7 @@ class VariableStepSolver:
 
         # ── Controller tick due? ──────────────────────────────────────────────
         if self._event == "bounce" or self._event == "peak":
-            if self._t == self._next_ctrl_t:
+            if self._t - self._next_ctrl_t < 1e-9:
                 ball_position, ball_velocity = self._dynamics.step(self._paddle, self._event_dt)
                 self._paddle = self._ctrl.step(self._dynamics._position, self._dynamics._velocity)
                 self._t += self._event_dt
@@ -159,7 +159,7 @@ class VariableStepSolver:
                 self._t += self._event_dt
 
         else:
-            if self._t == self._next_ctrl_t:
+            if self._t - self._next_ctrl_t < 1e-9:
                 ball_position, ball_velocity = self._dynamics.step(self._paddle, self._dynamics_dt)
                 self._paddle = self._ctrl.step(self._dynamics._position, self._dynamics._velocity)
                 self._t += self._dynamics_dt
