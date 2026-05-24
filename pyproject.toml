@@ -1,0 +1,5 @@
+[tool.ruff]
+line-length = 100  # Global settings like line length stay here
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]  # Linter-specific rules move here
