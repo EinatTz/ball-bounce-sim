@@ -33,10 +33,12 @@ def _find_library() -> Path:
     else:  # Linux and other POSIX
         candidates = ["controller.so"]
 
-    for name in candidates:
-        lib_path = here / name
-        if lib_path.exists():
-            return lib_path
+        for name in candidates:
+            lib_path = here / name
+            if lib_path.exists():
+                if sys.platform == "win32":
+                    os.add_dll_directory(str(here))  # tells Windows where to look
+                return lib_path
 
     searched = ", ".join(str(here / n) for n in candidates)
     raise FileNotFoundError(
