@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: ["**"]
 
-# Cancel in-flight runs for the same branch/PR so pushes don't queue up.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -15,7 +14,10 @@ jobs:
   # ── Tier 1: lint + unit tests ──────────────────────────────────────────────
   unit:
     name: "Tier 1 · Lint & Unit Tests"
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v4
@@ -24,40 +26,21 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: "pip"
 
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest pytest-cov ruff
+        run: python setup.py lint   # triggers ensure_venv()
 
-      - name: Lint (ruff)
-        run: |
-          ruff check .
+      - name: Lint
+        run: python setup.py lint
 
-      - name: Run unit tests
-        run: |
-          pytest tests/test_unit.py \
-            -v \
-            --tb=short \
-            --cov=. \
-            --cov-report=term-missing \
-            --cov-report=xml:coverage.xml
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage.xml
-          retention-days: 7
+      - name: Unit tests
+        run: python setup.py test
 
   # ── Tier 2: performance regression ────────────────────────────────────────
-  # Runs only if Tier 1 passes.
   performance:
     name: "Tier 2 · Performance Regression"
     runs-on: ubuntu-latest
-    needs: unit   # ← gate on Tier 1
+    needs: unit
 
     steps:
       - uses: actions/checkout@v4
@@ -66,25 +49,14 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: "pip"
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest
-
-      - name: Run performance regression tests
-        run: |
-          pytest tests/test_performance.py \
-            -v \
-            --tb=short
+      - name: Install dependencies and run performance tests
+        run: python setup.py test
 
       - name: Upload performance results
-        if: always()    # upload even on failure so we can inspect drift
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: perf-results
-          path: |
-            tests/baseline.json
+          path: tests/baseline.json
           retention-days: 14

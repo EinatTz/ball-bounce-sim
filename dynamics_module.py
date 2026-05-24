@@ -56,4 +56,3 @@ class DynamicsModule:
         """Reset ball state."""
         self._position = initial_position
         self._velocity = initial_velocity
-

@@ -1,10 +1,21 @@
-# Output files
+# ── Simulation output ─────────────────────────────────────────────────────────
 output/
 
-# Python
+# ── Scenario results (generated on run, not committed) ────────────────────────
+scenarios/*/plots/
+scenarios/**/*.csv
+scenarios/**/*.json
+
+# ── Python ────────────────────────────────────────────────────────────────────
+venv/
 __pycache__/
 *.pyc
+*.pyo
 .pytest_cache/
+coverage.xml
 
-# macOS
+# ── macOS ─────────────────────────────────────────────────────────────────────
 .DS_Store
+
+# ── Windows ───────────────────────────────────────────────────────────────────
+Thumbs.db

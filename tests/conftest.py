@@ -2,6 +2,7 @@
 conftest.py — adds the project root to sys.path so tests can import
 source modules directly without an installed package.
 """
+
 import sys
 from pathlib import Path
 

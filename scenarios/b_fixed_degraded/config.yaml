@@ -1,0 +1,35 @@
+# Scenario B — Fixed step solver, step size where results visibly degrade
+# Dynamics at 10 Hz (dt = 100 ms) — far too coarse to resolve bounces.
+# The ball travels ~0.5 m per step so impacts are missed entirely or
+# resolved a full step late, causing large energy errors and missed peaks.
+
+num_ticks: 500
+
+dynamics:
+  initial_position: 0.0
+  initial_velocity: 4.0
+  gravity: 9.81
+  restitution: 0.8
+  bounce_gain: 5.0
+  rate_hz: 10.0         # dt = 100 ms — visibly degraded
+
+controller:
+  kp: 0.5
+  ki: 0.1
+  kd: 0.05
+  target_height: 1.0
+  tick_rate_hz: 10.0    # must be <= dynamics rate for fixed solver
+  paddle_min: -0.2
+  paddle_max: 0.2
+
+solver:
+  type: fixed
+  event_trigger: bounce
+  event_rate_hz: 1200.0
+  bounce_position_threshold: 0.05
+  peak_velocity_threshold: 0.2
+
+visualizer:
+  target_height: 1.0
+  paddle_min: -1.0
+  paddle_max: 1.0

@@ -1,6 +1,7 @@
+import argparse
 import math
 
-from config import CONFIG
+from config import load_config
 from controller_module import ControllerModule
 from dynamics_module import DynamicsModule
 from output_module import OutputModule
@@ -8,7 +9,15 @@ from solver_module import FixedStepSolver, VariableStepSolver
 from visualizer_module import Visualizer
 
 if __name__ == "__main__":
-    cfg = CONFIG
+    parser = argparse.ArgumentParser(description="Ball bounce simulation")
+    parser.add_argument(
+        "--config",
+        default="config.yaml",
+        help="Path to config YAML file (default: config.yaml)",
+    )
+    args = parser.parse_args()
+
+    cfg = load_config(args.config)
     dcfg = cfg.dynamics
     ccfg = cfg.controller
     scfg = cfg.solver
@@ -42,12 +51,11 @@ if __name__ == "__main__":
 
     out = OutputModule(cfg)
 
-    # ── Select solver ────────────────────────────────────────────────────
+    # ── Select solver ─────────────────────────────────────────────────────────
     if scfg.type == "fixed":
         solver = FixedStepSolver(
             dynamics, ctrl, dynamics_rate_hz=dcfg.rate_hz, ctrl_rate_hz=ccfg.tick_rate_hz
         )
-
     elif scfg.type == "variable":
         solver = VariableStepSolver(
             dynamics,
@@ -78,7 +86,7 @@ if __name__ == "__main__":
         peak_str = f"{peak:.4f}" if not math.isnan(peak) else "N/A"
 
         """print(
-           f"tick {tick:04d} | "
+            f"tick {tick:04d} | "
             f"ball_pos={ball_position:.4f} | "
             f"ball_vel={ball_velocity:.4f} | "
             f"paddle={paddle:.4f} | "
@@ -87,7 +95,7 @@ if __name__ == "__main__":
             f"current_dt={current_dt}"
         )"""
 
-        #viz.update(ball_position, ball_velocity, paddle, current_dt)
+       #viz.update(ball_position, ball_velocity, paddle, current_dt)
 
         out.record(
             tick=tick,
@@ -100,7 +108,7 @@ if __name__ == "__main__":
             step_dt=current_dt,
         )
 
-    # ── Output ─────────────────────────────────────────────────────────────────
+    # ── Output ────────────────────────────────────────────────────────────────
     metrics = out.finish()
 
     print("\n── Performance Summary ───────────────────────────────────────────────")
@@ -125,6 +133,6 @@ if __name__ == "__main__":
     print("─────────────────────────────────────────────────────────────────────")
 
     # ── Cleanup ───────────────────────────────────────────────────────────────
-    viz.show_final()
+    #viz.show_final()
     ctrl.destroy()
     viz.destroy()

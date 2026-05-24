@@ -1,0 +1,35 @@
+# Scenario C — Variable step solver, tight tolerances
+# The solver switches to 2400 Hz near events, triggered very early
+# (within 10 cm of the paddle or when velocity is within 0.05 m/s of zero).
+# This gives high resolution at every bounce and peak — accurate but slower.
+
+num_ticks: 500
+
+dynamics:
+  initial_position: 0.0
+  initial_velocity: 4.0
+  gravity: 9.81
+  restitution: 0.8
+  bounce_gain: 5.0
+  rate_hz: 300.0
+
+controller:
+  kp: 0.5
+  ki: 0.1
+  kd: 0.05
+  target_height: 1.0
+  tick_rate_hz: 100.0
+  paddle_min: -0.2
+  paddle_max: 0.2
+
+solver:
+  type: variable
+  event_trigger: bounce
+  event_rate_hz: 2400.0             # tight — 4× finer than scenario A during events
+  bounce_position_threshold: 0.10   # tight — enter high-res mode 10 cm from paddle
+  peak_velocity_threshold: 0.05     # tight — enter high-res mode very close to peak
+
+visualizer:
+  target_height: 1.0
+  paddle_min: -1.0
+  paddle_max: 1.0

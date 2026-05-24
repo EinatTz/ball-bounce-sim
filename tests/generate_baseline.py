@@ -42,9 +42,7 @@ def main():
         sys.exit(1)
 
     baseline = {
-        "_comment": (
-            f"Generated {datetime.now(timezone.utc).isoformat()} by generate_baseline.py"
-        ),
+        "_comment": (f"Generated {datetime.now(timezone.utc).isoformat()} by generate_baseline.py"),
         "_scenario": (
             "fixed solver, 300 ticks, "
             f"kp={SCENARIO['controller']['kp']} "

@@ -32,7 +32,6 @@ The test fails if the live run exceeds the allowed drift:
 from __future__ import annotations
 
 import json
-import math
 import time
 from pathlib import Path
 from unittest.mock import MagicMock, patch
@@ -56,8 +55,8 @@ from solver_module import FixedStepSolver
 # ---------------------------------------------------------------------------
 # Tolerances
 # ---------------------------------------------------------------------------
-TOLERANCE_FACTOR = 1.20   # RMSE may be up to 20 % worse than baseline before failing
-PERF_FACTOR = 0.60        # ticks/s may be up to 40 % slower than baseline before failing
+TOLERANCE_FACTOR = 1.20  # RMSE may be up to 20 % worse than baseline before failing
+PERF_FACTOR = 0.60  # ticks/s may be up to 40 % slower than baseline before failing
 
 BASELINE_PATH = Path(__file__).parent / "baseline.json"
 
@@ -91,6 +90,7 @@ SCENARIO = dict(
 # ---------------------------------------------------------------------------
 # Stub controller (avoids needing the compiled shared library in CI)
 # ---------------------------------------------------------------------------
+
 
 class _StubController:
     """
@@ -141,6 +141,7 @@ class _StubController:
 # ---------------------------------------------------------------------------
 # Run the scenario
 # ---------------------------------------------------------------------------
+
 
 def _run_scenario() -> dict:
     """
@@ -197,6 +198,7 @@ def _run_scenario() -> dict:
         out._settling_tick = None
         out._start_wall = time.perf_counter()
         from datetime import datetime, timezone
+
         out._start_iso = datetime.now(timezone.utc).isoformat()
 
     sim_time = 0.0
@@ -235,6 +237,7 @@ def _run_scenario() -> dict:
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture(scope="module")
 def scenario_metrics():
@@ -295,9 +298,15 @@ class TestPerformanceRegression:
     def test_metrics_schema(self, scenario_metrics):
         """Returned metrics dict must contain all expected keys."""
         required = {
-            "rmse_m", "steady_state_rmse_m", "num_peaks_detected",
-            "peak_heights_m", "mean_error_m", "max_abs_error_m",
-            "ticks_per_second", "wall_time_s", "optimization",
+            "rmse_m",
+            "steady_state_rmse_m",
+            "num_peaks_detected",
+            "peak_heights_m",
+            "mean_error_m",
+            "max_abs_error_m",
+            "ticks_per_second",
+            "wall_time_s",
+            "optimization",
         }
         missing = required - scenario_metrics.keys()
         assert not missing, f"Metrics dict missing keys: {missing}"

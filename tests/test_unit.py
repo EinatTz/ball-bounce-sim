@@ -228,7 +228,7 @@ class TestDynamicsModule:
         dt = 0.01
         pos, vel = dyn.step(paddle_position=-0.2, step_dt=dt)
         expected_vel = 2.0 - 9.81 * dt
-        expected_pos = 5.0 + expected_vel * dt   # module applies vel update first
+        expected_pos = 5.0 + expected_vel * dt  # module applies vel update first
         assert vel == pytest.approx(expected_vel, rel=1e-9)
         assert pos == pytest.approx(expected_pos, rel=1e-9)
 
@@ -249,13 +249,11 @@ class TestDynamicsModule:
           v_before_check = -5.0 - g*dt   (more negative)
           v_out          = +5.0 + g*dt   (positive, slightly larger than 5.0)
         """
-        dyn = _make_dynamics(
-            pos=0.001, vel=-5.0, restitution=1.0, bounce_gain=0.0, paddle_min=0.0
-        )
+        dyn = _make_dynamics(pos=0.001, vel=-5.0, restitution=1.0, bounce_gain=0.0, paddle_min=0.0)
         dt = 1.0 / 300.0
         pos, vel = dyn.step(paddle_position=0.0, step_dt=dt)
-        v_after_gravity = -5.0 - 9.81 * dt          # gravity applied before bounce check
-        expected_vel = -1.0 * v_after_gravity        # elastic reflection: v_out = -e * v_in
+        v_after_gravity = -5.0 - 9.81 * dt  # gravity applied before bounce check
+        expected_vel = -1.0 * v_after_gravity  # elastic reflection: v_out = -e * v_in
         assert vel == pytest.approx(expected_vel, abs=1e-9)
 
     def test_no_bounce_when_moving_upward(self):
@@ -319,13 +317,16 @@ class TestFixedStepSolver:
         result = solver.step()
         assert len(result) == 3
 
-    @pytest.mark.parametrize("dyn_hz,ctrl_hz", [
-        (300.0, 100.0),   # ratio 3:1
-        (600.0, 100.0),   # ratio 6:1
-        (100.0, 100.0),   # ratio 1:1
-        (1000.0, 100.0),  # ratio 10:1
-        (50.0,  100.0),   # ratio 1:2 (ctrl faster than dynamics)
-    ])
+    @pytest.mark.parametrize(
+        "dyn_hz,ctrl_hz",
+        [
+            (300.0, 100.0),  # ratio 3:1
+            (600.0, 100.0),  # ratio 6:1
+            (100.0, 100.0),  # ratio 1:1
+            (1000.0, 100.0),  # ratio 10:1
+            (50.0, 100.0),  # ratio 1:2 (ctrl faster than dynamics)
+        ],
+    )
     def test_controller_called_at_most_once_per_solver_step(self, dyn_hz, ctrl_hz):
         """
         Each call to solver.step() must invoke the controller at most once.
@@ -342,13 +343,16 @@ class TestFixedStepSolver:
                 f"ctrl called {ctrl.step.call_count} times in a single solver step"
             )
 
-    @pytest.mark.parametrize("dyn_hz,ctrl_hz", [
-        (300.0, 100.0),
-        (600.0, 100.0),
-        (100.0, 100.0),
-        (1000.0, 100.0),
-        (50.0,  100.0),
-    ])
+    @pytest.mark.parametrize(
+        "dyn_hz,ctrl_hz",
+        [
+            (300.0, 100.0),
+            (600.0, 100.0),
+            (100.0, 100.0),
+            (1000.0, 100.0),
+            (50.0, 100.0),
+        ],
+    )
     def test_controller_called_at_least_once_per_ctrl_period(self, dyn_hz, ctrl_hz):
         """
         Within any window of ceil(dyn_hz/ctrl_hz) + 1 solver steps the
@@ -361,7 +365,7 @@ class TestFixedStepSolver:
         ctrl = _mock_ctrl()
         solver = FixedStepSolver(dyn, ctrl, dynamics_rate_hz=dyn_hz, ctrl_rate_hz=ctrl_hz)
 
-        for window in range(10):   # check 10 consecutive ctrl periods
+        for window in range(10):  # check 10 consecutive ctrl periods
             before = ctrl.step.call_count
             for _ in range(steps_per_ctrl):
                 solver.step()
@@ -395,7 +399,7 @@ class TestFixedStepSolver:
         """Solver should pass its stored paddle back to dynamics each step."""
         dyn = _make_dynamics(pos=1.0, vel=0.0)
         ctrl = MagicMock()
-        ctrl.step.return_value = 0.15   # controller sets paddle to 0.15
+        ctrl.step.return_value = 0.15  # controller sets paddle to 0.15
         solver = FixedStepSolver(dyn, ctrl, dynamics_rate_hz=300.0, ctrl_rate_hz=100.0)
         # First step triggers the controller (t==next_ctrl_t==0)
         solver.step()
@@ -514,8 +518,10 @@ class TestOutputModuleMetrics:
             out._prev_peak = float("nan")
             out._settling_tick = None
             import time
+
             out._start_wall = time.perf_counter()
             from datetime import datetime, timezone
+
             out._start_iso = datetime.now(timezone.utc).isoformat()
         return out
 

@@ -1,0 +1,36 @@
+# Scenario D — Variable step solver, loose tolerances
+# The solver switches to only 600 Hz near events, triggered late
+# (within 1 cm of the paddle or when velocity is within 0.5 m/s of zero).
+# High-res mode kicks in too late and too briefly — visible energy error
+# at bounces compared to scenario C, but faster to run.
+
+num_ticks: 500
+
+dynamics:
+  initial_position: 0.0
+  initial_velocity: 4.0
+  gravity: 9.81
+  restitution: 0.8
+  bounce_gain: 5.0
+  rate_hz: 300.0
+
+controller:
+  kp: 0.5
+  ki: 0.1
+  kd: 0.05
+  target_height: 1.0
+  tick_rate_hz: 100.0
+  paddle_min: -0.2
+  paddle_max: 0.2
+
+solver:
+  type: variable
+  event_trigger: bounce
+  event_rate_hz: 600.0              # loose — 2× coarser than scenario A during events
+  bounce_position_threshold: 0.01   # loose — enter high-res mode only 1 cm from paddle
+  peak_velocity_threshold: 0.5      # loose — enter high-res mode far from peak
+
+visualizer:
+  target_height: 1.0
+  paddle_min: -1.0
+  paddle_max: 1.0

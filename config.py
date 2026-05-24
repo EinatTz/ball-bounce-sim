@@ -32,7 +32,10 @@ class SolverConfig:
     bounce_position_threshold: float
     peak_velocity_threshold: float
 
+
 ""
+
+
 @dataclass
 class VisualizerConfig:
     target_height: float  # TARGET_HEIGHT
