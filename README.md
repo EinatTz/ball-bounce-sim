@@ -6,31 +6,29 @@ A 1D physics simulation of a bouncing ball kept at a target height by a PID-cont
 
 - Python 3.10 or newer — [download here](https://www.python.org/downloads/)
 - Git — [download here](https://git-scm.com/downloads)
-- A compiled controller library in the project folder (`controller.dylib` on macOS, `controller.so` on Linux, `controller.dll` on Windows)
+- `make` — pre-installed on macOS and Linux; Windows users can install via [Chocolatey](https://chocolatey.org/): `choco install make`
 
-## Installation
+## Quickstart
 
 ```bash
 git clone https://github.com/EinatTz/ball-bounce-sim.git
 cd ball-bounce-sim
-
-python3 -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
-
-pip install pyyaml matplotlib numpy
+make
 ```
 
-## Usage
-
-```bash
-python main.py
-```
-
-Results are written to the `output/` folder:
+That's it. `make` creates a virtual environment, installs dependencies, and runs the simulation. Results appear in the `output/` folder:
 
 - `scenario_results.csv` — ball position, velocity, and paddle position at every tick
 - `performance_metrics.json` — bounce peak RMSE, settling time, and tuning recommendations
 - `runtime_log.json` — config snapshot and dependency versions used for the run
+
+## Other commands
+
+```bash
+make test    # run the full test suite
+make lint    # run the linter
+make clean   # remove the venv and output folder
+```
 
 ## Configuration
 
@@ -47,16 +45,13 @@ All settings are in `config.yaml`. The most useful ones to experiment with:
 ## Running Tests
 
 ```bash
-pip install pytest pytest-cov ruff   # first time only
-
-pytest tests/test_unit.py -v         # unit tests
-pytest tests/test_performance.py -v  # regression tests
+make test
 ```
 
 If a performance test fails, a recent change caused results to drift beyond the tolerance in `tests/baseline.json`. To accept new results as the reference after an intentional change:
 
 ```bash
-python tests/generate_baseline.py
+venv/bin/python tests/generate_baseline.py
 git add tests/baseline.json
 git commit -m "chore: update performance baseline"
 ```
@@ -64,6 +59,8 @@ git commit -m "chore: update performance baseline"
 ## Project Structure
 
 ```
+├── Makefile                 One-command setup and run
+├── requirements.txt         Python dependencies
 ├── main.py                  Entry point
 ├── config.yaml              All simulation settings
 ├── dynamics_module.py       Ball physics
