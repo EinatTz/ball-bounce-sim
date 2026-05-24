@@ -95,7 +95,7 @@ if __name__ == "__main__":
             f"current_dt={current_dt}"
         )"""
 
-       #viz.update(ball_position, ball_velocity, paddle, current_dt)
+        # viz.update(ball_position, ball_velocity, paddle, current_dt)
 
         out.record(
             tick=tick,
@@ -133,6 +133,6 @@ if __name__ == "__main__":
     print("─────────────────────────────────────────────────────────────────────")
 
     # ── Cleanup ───────────────────────────────────────────────────────────────
-    #viz.show_final()
+    # viz.show_final()
     ctrl.destroy()
     viz.destroy()
