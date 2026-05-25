@@ -57,7 +57,7 @@ jobs:
         run: python setup.py lint   # triggers ensure_venv()
 
       - name: Build controller library (Linux)
-        if: runner.os == 'Linux'
+        if: matrix.os == 'ubuntu-latest'
         run: |
           cmake -S controller -B build -DCMAKE_BUILD_TYPE=Release
           cmake --build build --config Release
@@ -65,14 +65,14 @@ jobs:
           cp build/libpaddle_controller.so libpaddle_controller.so
 
       - name: Build controller library (macOS)
-        if: runner.os == 'macOS'
+        if: matrix.os == 'macos-latest'
         run: |
           cmake -S controller -B build -DCMAKE_BUILD_TYPE=Release             -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-install_name,@rpath/controller.dylib"
           cmake --build build --config Release
           cp build/libpaddle_controller.dylib controller.dylib
 
       - name: Build controller library (Windows)
-        if: runner.os == 'Windows'
+        if: matrix.os == 'windows-latest'
         run: |
           cmake -S controller -B build -DCMAKE_BUILD_TYPE=Release
           cmake --build build --config Release
@@ -81,11 +81,11 @@ jobs:
 
 
       - name: Run simulation (headless, 10 ticks)
-        if: runner.os != 'Windows'
+        if: matrix.os != 'windows-latest'
         run: venv/bin/python main.py --config tests/smoke_config.yaml --no-viz
 
       - name: Run simulation (headless, 10 ticks) — Windows
-        if: runner.os == 'Windows'
+        if: matrix.os == 'windows-latest'
         run: venv\Scripts\python main.py --config tests/smoke_config.yaml --no-viz
 
       - name: Check output files exist
