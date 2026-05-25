@@ -14,6 +14,14 @@ __pycache__/
 .pytest_cache/
 coverage.xml
 
+# ── setup.py install sentinel ─────────────────────────────────────────────────
+venv/.installed
+
+# ── Compiled libraries (built from source in CI, not committed) ──────────────
+*.so
+*.dylib
+*.dll
+
 # ── macOS ─────────────────────────────────────────────────────────────────────
 .DS_Store
 
