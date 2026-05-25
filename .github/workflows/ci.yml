@@ -79,6 +79,14 @@ jobs:
           copy build\Release\paddle_controller.dll controller.dll
           dir controller.dll
 
+      - name: Debug library location
+        if: runner.os != 'Windows'
+        run: |
+          echo "Repo root contents:"
+          ls -la *.so *.dylib 2>/dev/null || echo "No .so/.dylib in root"
+          echo "controller_module.py location:"
+          find . -name "controller_module.py"
+
       - name: Run simulation (headless, 10 ticks)
         if: runner.os != 'Windows'
         run: venv/bin/python main.py --config tests/smoke_config.yaml --no-viz
