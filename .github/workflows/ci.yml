@@ -76,7 +76,7 @@ jobs:
       - name: Build controller library (Windows)
         if: matrix.os == 'windows-latest'
         run: |
-          cmake -S controller -B build -DCMAKE_BUILD_TYPE=Release
+          cmake -S controller -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON
           cmake --build build --config Release
           copy build\Release\paddle_controller.dll controller.dll
 
