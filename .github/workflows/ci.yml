@@ -65,13 +65,15 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           cp build/libpaddle_controller.so controller.so
-          ls -la controller.so
+          cp build/libpaddle_controller.so libpaddle_controller.so
+          ls -la controller.so libpaddle_controller.so
 
       - name: Copy library to project root (macOS)
         if: runner.os == 'macOS'
         run: |
           cp build/libpaddle_controller.dylib controller.dylib
-          ls -la controller.dylib
+          cp build/libpaddle_controller.dylib libpaddle_controller.dylib
+          ls -la controller.dylib libpaddle_controller.dylib
 
       - name: Copy library to project root (Windows)
         if: runner.os == 'Windows'
@@ -79,13 +81,7 @@ jobs:
           copy build\Release\paddle_controller.dll controller.dll
           dir controller.dll
 
-      - name: Debug library location
-        if: runner.os == 'macOS'
-        run: |
-          echo "dylib dependencies:"
-          otool -L controller.dylib
-          echo "try loading:"
-          venv/bin/python -c 'import ctypes; lib = ctypes.CDLL("./controller.dylib"); print("loaded ok")'  
+
 
       - name: Run simulation (headless, 10 ticks)
         if: runner.os != 'Windows'
