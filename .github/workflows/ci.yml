@@ -80,13 +80,12 @@ jobs:
           dir controller.dll
 
       - name: Debug library location
-        if: runner.os != 'Windows'
+        if: runner.os == 'macOS'
         run: |
-          echo "Repo root contents:"
-          ls -la *.so *.dylib 2>/dev/null || echo "No .so/.dylib in root"
-          echo "controller_module.py location:"
-          find . -name "controller_module.py"
-          venv/bin/python -c 'from pathlib import Path; here = Path("controller_module.py").resolve().parent; print("here:", here); print("dylib:", (here / "controller.dylib").exists()); print("so:", (here / "controller.so").exists())'  
+          echo "dylib dependencies:"
+          otool -L controller.dylib
+          echo "try loading:"
+          venv/bin/python -c 'import ctypes; lib = ctypes.CDLL("./controller.dylib"); print("loaded ok")'  
 
       - name: Run simulation (headless, 10 ticks)
         if: runner.os != 'Windows'
