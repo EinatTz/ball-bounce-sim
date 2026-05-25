@@ -56,30 +56,27 @@ jobs:
       - name: Install dependencies
         run: python setup.py lint   # triggers ensure_venv()
 
-      - name: Build controller library
+      - name: Build controller library (Linux)
+        if: runner.os == 'Linux'
         run: |
           cmake -S controller -B build -DCMAKE_BUILD_TYPE=Release
           cmake --build build --config Release
-
-      - name: Copy library to project root (Linux)
-        if: runner.os == 'Linux'
-        run: |
           cp build/libpaddle_controller.so controller.so
           cp build/libpaddle_controller.so libpaddle_controller.so
-          ls -la controller.so libpaddle_controller.so
 
-      - name: Copy library to project root (macOS)
+      - name: Build controller library (macOS)
         if: runner.os == 'macOS'
         run: |
+          cmake -S controller -B build -DCMAKE_BUILD_TYPE=Release             -DCMAKE_SHARED_LINKER_FLAGS="-Wl,-install_name,@rpath/controller.dylib"
+          cmake --build build --config Release
           cp build/libpaddle_controller.dylib controller.dylib
-          cp build/libpaddle_controller.dylib libpaddle_controller.dylib
-          ls -la controller.dylib libpaddle_controller.dylib
 
-      - name: Copy library to project root (Windows)
+      - name: Build controller library (Windows)
         if: runner.os == 'Windows'
         run: |
+          cmake -S controller -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release
           copy build\Release\paddle_controller.dll controller.dll
-          dir controller.dll
 
 
 
