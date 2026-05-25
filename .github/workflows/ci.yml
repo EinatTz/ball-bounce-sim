@@ -86,10 +86,12 @@ jobs:
         if: matrix.os != 'windows-latest'
         run: venv/bin/python main.py --config tests/smoke_config.yaml --no-viz
 
-      - name: Run simulation (headless, 10 ticks) — Windows
+      - name: Run simulation (headless, 10 ticks) Windows
         if: matrix.os == 'windows-latest'
+        env:
+          PYTHONUTF8: "1"
         run: venv\Scripts\python main.py --config tests/smoke_config.yaml --no-viz
-
+     
       - name: Check output files exist
         run: |
           python -c "
