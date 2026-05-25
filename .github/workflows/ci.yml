@@ -86,15 +86,7 @@ jobs:
           ls -la *.so *.dylib 2>/dev/null || echo "No .so/.dylib in root"
           echo "controller_module.py location:"
           find . -name "controller_module.py"
-          echo "Python find_library test:"
-          venv/bin/python -c "
-from pathlib import Path
-import sys
-here = Path('controller_module.py').resolve().parent
-print('here:', here)
-print('dylib exists:', (here / 'controller.dylib').exists())
-print('so exists:', (here / 'controller.so').exists())
-"
+          venv/bin/python -c 'from pathlib import Path; here = Path("controller_module.py").resolve().parent; print("here:", here); print("dylib:", (here / "controller.dylib").exists()); print("so:", (here / "controller.so").exists())'  
 
       - name: Run simulation (headless, 10 ticks)
         if: runner.os != 'Windows'
