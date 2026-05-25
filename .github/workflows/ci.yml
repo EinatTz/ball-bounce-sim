@@ -63,15 +63,21 @@ jobs:
 
       - name: Copy library to project root (Linux)
         if: runner.os == 'Linux'
-        run: cp build/libpaddle_controller.so controller.so
+        run: |
+          cp build/libpaddle_controller.so controller.so
+          ls -la controller.so
 
       - name: Copy library to project root (macOS)
         if: runner.os == 'macOS'
-        run: cp build/libpaddle_controller.dylib controller.dylib
+        run: |
+          cp build/libpaddle_controller.dylib controller.dylib
+          ls -la controller.dylib
 
       - name: Copy library to project root (Windows)
         if: runner.os == 'Windows'
-        run: copy build\Release\paddle_controller.dll controller.dll
+        run: |
+          copy build\Release\paddle_controller.dll controller.dll
+          dir controller.dll
 
       - name: Run simulation (headless, 10 ticks)
         if: runner.os != 'Windows'
