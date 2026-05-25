@@ -15,6 +15,11 @@ if __name__ == "__main__":
         default="config.yaml",
         help="Path to config YAML file (default: config.yaml)",
     )
+    parser.add_argument(
+        "--no-viz",
+        action="store_true",
+        help="Disable the visualizer (useful for CI and headless environments)",
+    )
     args = parser.parse_args()
 
     cfg = load_config(args.config)
@@ -43,7 +48,7 @@ if __name__ == "__main__":
         paddle_max=ccfg.paddle_max,
     )
 
-    viz = Visualizer(
+    viz = None if args.no_viz else Visualizer(
         target_height=vcfg.target_height,
         paddle_min=ccfg.paddle_min,
         paddle_max=ccfg.paddle_max,
@@ -95,7 +100,7 @@ if __name__ == "__main__":
             f"current_dt={current_dt}"
         )"""
 
-        # viz.update(ball_position, ball_velocity, paddle, current_dt)
+        # if viz: viz.update(ball_position, ball_velocity, paddle, current_dt)
 
         out.record(
             tick=tick,
@@ -133,6 +138,8 @@ if __name__ == "__main__":
     print("─────────────────────────────────────────────────────────────────────")
 
     # ── Cleanup ───────────────────────────────────────────────────────────────
-    # viz.show_final()
+    #if viz:
+        #viz.show_final()
+        #viz.destroy()
     ctrl.destroy()
-    viz.destroy()
+

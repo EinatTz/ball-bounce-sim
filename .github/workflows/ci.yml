@@ -36,11 +36,48 @@ jobs:
       - name: Unit tests
         run: python setup.py test
 
+  # ── Smoke test: run main.py end to end on all platforms ───────────────────
+  smoke:
+    name: "Smoke · End-to-End Run"
+    needs: unit
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: python setup.py lint   # triggers ensure_venv()
+
+      - name: Run simulation (headless, 10 ticks)
+        run: venv/bin/python main.py --config tests/smoke_config.yaml --no-viz
+        if: runner.os != 'Windows'
+
+      - name: Run simulation (headless, 10 ticks) — Windows
+        run: venv\Scripts\python main.py --config tests/smoke_config.yaml --no-viz
+        if: runner.os == 'Windows'
+
+      - name: Check output files exist
+        run: |
+          python -c "
+          from pathlib import Path
+          for f in ['output/scenario_results.csv', 'output/runtime_log.json', 'output/performance_metrics.json']:
+              assert Path(f).exists(), f'Missing: {f}'
+          print('All output files present')
+          "
+
   # ── Tier 2: performance regression ────────────────────────────────────────
   performance:
     name: "Tier 2 · Performance Regression"
     runs-on: ubuntu-latest
-    needs: unit
+    needs: smoke
 
     steps:
       - uses: actions/checkout@v4
