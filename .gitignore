@@ -1,5 +1,6 @@
 # ── Simulation output ─────────────────────────────────────────────────────────
 output/
+build/
 
 # ── Scenario results (generated on run, not committed) ────────────────────────
 scenarios/*/plots/

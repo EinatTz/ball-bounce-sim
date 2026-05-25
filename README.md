@@ -8,16 +8,17 @@ Works on Windows, macOS, and Linux.
 
 - Python 3.10 or newer — [download here](https://www.python.org/downloads/)
 - Git — [download here](https://git-scm.com/downloads)
+- cmake 3.14 or newer — [download here](https://cmake.org/download/) — `setup.py` calls this automatically to build the controller library
 
 ## Quickstart
 
 ```bash
 git clone https://github.com/EinatTz/ball-bounce-sim.git
-cd ball-bounce-sim
+cd YOUR_REPO_NAME
 python setup.py
 ```
 
-`setup.py` creates a virtual environment, installs dependencies, and runs the simulation. Results appear in the `output/` folder:
+`setup.py` builds the controller library, creates a virtual environment, installs dependencies, and runs the simulation. Results appear in the `output/` folder:
 
 - `scenario_results.csv` — ball position, velocity, and paddle position at every tick
 - `performance_metrics.json` — bounce peak RMSE, settling time, and tuning recommendations
@@ -79,21 +80,19 @@ git commit -m "chore: update performance baseline"
 ├── setup.py                 Cross-platform setup and run (Windows, macOS, Linux)
 ├── requirements.txt         Python dependencies
 ├── pyproject.toml           Linter configuration (ruff)
-├── main.py                  Entry point — accepts --config <path>
+├── main.py                  Entry point — accepts --config <path> and --no-viz
 ├── run_scenarios.py         Runs all four scenarios and saves plots
 ├── config.yaml              Default simulation settings
 ├── config.py                Loads config.yaml into Python dataclasses
 ├── dynamics_module.py       Ball physics
-├── controller_module.py     PID controller (wraps compiled C library)
-├── controller.so            Compiled controller — Linux
-├── controller.dylib         Compiled controller — macOS
-├── controller.dll           Compiled controller — Windows
+├── controller_module.py     PID controller (wraps compiled C++ library via ctypes)
+├── controller/              C++ controller source — build with cmake
 ├── solver_module.py         Fixed and variable step solvers
 ├── output_module.py         Writes output files and computes metrics
 ├── visualizer_module.py     Real-time visualizer
 ├── .github/
 │   └── workflows/
-│       └── ci.yml           CI pipeline (runs on Windows, macOS, Linux)
+│       └── ci.yml           CI pipeline (builds from source, runs on all 3 platforms)
 ├── scenarios/
 │   ├── a_fixed_reasonable/  config.yaml (results and plots generated on run)
 │   ├── b_fixed_degraded/

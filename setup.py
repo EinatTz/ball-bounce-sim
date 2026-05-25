@@ -5,12 +5,12 @@ setup.py
 Cross-platform setup and run script. Works on Windows, macOS, and Linux.
 
 Usage:
-    python setup.py            # create venv, install deps, run simulation
+    python setup.py            # build controller, create venv, install deps, run simulation
     python setup.py run        # run the simulation
     python setup.py scenarios  # run all four demonstration scenarios and save plots
     python setup.py test       # run the full test suite
     python setup.py lint       # run the linter
-    python setup.py clean      # remove venv and output folder
+    python setup.py clean      # remove venv, build, and output folder
 """
 
 from __future__ import annotations
@@ -20,10 +20,18 @@ import subprocess
 import sys
 from pathlib import Path
 
-VENV        = Path("venv")
+VENV         = Path("venv")
 REQUIREMENTS = Path("requirements.txt")
 # Sentinel written after a successful install — skips reinstall on next run
-_SENTINEL   = VENV / ".installed"
+_SENTINEL    = VENV / ".installed"
+
+# Platform-specific library name in the project root
+if sys.platform == "win32":
+    _LIB = Path("controller.dll")
+elif sys.platform == "darwin":
+    _LIB = Path("controller.dylib")
+else:
+    _LIB = Path("controller.so")
 
 # ---------------------------------------------------------------------------
 # Resolve venv binary paths cross-platform
@@ -49,6 +57,43 @@ def run(cmd: list, **kwargs):
         sys.exit(result.returncode)
 
 
+def ensure_controller():
+    """Build the controller shared library if not already present."""
+    if _LIB.exists():
+        return  # already built
+
+    if not shutil.which("cmake"):
+        print("ERROR: cmake not found.")
+        print("Install cmake from https://cmake.org/download/ and try again.")
+        sys.exit(1)
+
+    print("Building controller library...")
+
+    cmake_flags = [
+        "cmake", "-S", "controller", "-B", "build",
+        "-DCMAKE_BUILD_TYPE=Release",
+    ]
+    if sys.platform == "win32":
+        cmake_flags.append("-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON")
+    elif sys.platform == "darwin":
+        cmake_flags.append(
+            "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,-install_name,@rpath/controller.dylib"
+        )
+
+    run(cmake_flags)
+    run(["cmake", "--build", "build", "--config", "Release"])
+
+    # Copy built library to project root
+    if sys.platform == "win32":
+        shutil.copy("build/Release/paddle_controller.dll", str(_LIB))
+    elif sys.platform == "darwin":
+        shutil.copy("build/libpaddle_controller.dylib", str(_LIB))
+    else:
+        shutil.copy("build/libpaddle_controller.so", str(_LIB))
+
+    print(f"Controller built: {_LIB}\n")
+
+
 def ensure_venv():
     """Create venv and install all dependencies — skipped if already done."""
     if _SENTINEL.exists():
@@ -66,20 +111,25 @@ def ensure_venv():
     _SENTINEL.touch()
     print("Setup complete.\n")
 
+
+def ensure_all():
+    ensure_controller()
+    ensure_venv()
+
 # ---------------------------------------------------------------------------
 # Commands
 # ---------------------------------------------------------------------------
 
 def cmd_run():
-    ensure_venv()
+    ensure_all()
     run([str(VENV_PYTHON), "main.py"])
 
 def cmd_scenarios():
-    ensure_venv()
+    ensure_all()
     run([str(VENV_PYTHON), "run_scenarios.py"])
 
 def cmd_test():
-    ensure_venv()
+    ensure_venv()  # tests use a stub controller — no cmake needed
     run([str(VENV_PYTEST), "tests/", "-v"])
 
 def cmd_lint():
@@ -87,9 +137,10 @@ def cmd_lint():
     run([str(VENV_RUFF), "check", "."])
 
 def cmd_clean():
-    for path in [VENV, Path("output"), Path("__pycache__"), Path(".pytest_cache")]:
+    for path in [VENV, Path("build"), Path("output"),
+                 Path("__pycache__"), Path(".pytest_cache"), _LIB]:
         if path.exists():
-            shutil.rmtree(path)
+            shutil.rmtree(path) if path.is_dir() else path.unlink()
             print(f"Removed {path}")
 
 # ---------------------------------------------------------------------------
