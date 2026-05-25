@@ -70,6 +70,10 @@ jobs:
           cmake -S controller -B build -DCMAKE_BUILD_TYPE=Release
           cmake --build build --config Release
 
+      - name: List build output (debug)
+        if: runner.os != 'Windows'
+        run: find build -name "*.so" -o -name "*.dylib" | head -20
+
       - name: Copy library to project root (Linux / macOS)
         if: runner.os != 'Windows'
         run: cp ${{ matrix.lib_src }} ${{ matrix.lib_dst }}
