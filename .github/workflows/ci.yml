@@ -42,16 +42,7 @@ jobs:
     needs: unit
     strategy:
       matrix:
-        include:
-          - os: ubuntu-latest
-            lib_src: build/libpaddle_controller.so
-            lib_dst: controller.so
-          - os: macos-latest
-            lib_src: build/libpaddle_controller.dylib
-            lib_dst: controller.dylib
-          - os: windows-latest
-            lib_src: build/Release/paddle_controller.dll
-            lib_dst: controller.dll
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -70,17 +61,17 @@ jobs:
           cmake -S controller -B build -DCMAKE_BUILD_TYPE=Release
           cmake --build build --config Release
 
-      - name: List build output (debug)
-        if: runner.os != 'Windows'
-        run: find build -name "*.so" -o -name "*.dylib" | head -20
+      - name: Copy library to project root (Linux)
+        if: runner.os == 'Linux'
+        run: cp build/libpaddle_controller.so controller.so
 
-      - name: Copy library to project root (Linux / macOS)
-        if: runner.os != 'Windows'
-        run: cp ${{ matrix.lib_src }} ${{ matrix.lib_dst }}
+      - name: Copy library to project root (macOS)
+        if: runner.os == 'macOS'
+        run: cp build/libpaddle_controller.dylib controller.dylib
 
       - name: Copy library to project root (Windows)
         if: runner.os == 'Windows'
-        run: copy ${{ matrix.lib_src }} ${{ matrix.lib_dst }}
+        run: copy build\Release\paddle_controller.dll controller.dll
 
       - name: Run simulation (headless, 10 ticks)
         if: runner.os != 'Windows'
